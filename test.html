@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Woordenteller</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 2rem;
+      line-height: 1.5;
+    }
+
+    label {
+      display: block;
+      margin-top: 1rem;
+      font-weight: bold;
+    }
+
+    input[type="text"],
+    textarea {
+      width: 100%;
+      margin-top: 0.5rem;
+      padding: 0.75rem;
+      font-size: 1rem;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      box-sizing: border-box;
+    }
+
+    textarea {
+      min-height: 200px;
+      resize: vertical;
+    }
+
+    button {
+      margin-top: 1rem;
+      padding: 0.75rem 1.5rem;
+      font-size: 1rem;
+      border: none;
+      border-radius: 6px;
+      background: #2563eb;
+      color: #fff;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background: #1d4ed8;
+    }
+
+    .results {
+      margin-top: 1.5rem;
+      padding: 1rem;
+      border-radius: 6px;
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+    }
+
+    .results ul {
+      padding-left: 1.25rem;
+    }
+
+    .note {
+      font-size: 0.9rem;
+      color: #475569;
+      margin-top: 0.25rem;
+    }
+  </style>
+</head>
+<body>
+  <h1>Woordenteller</h1>
+  <p>Vul één woord of meerdere woorden (gescheiden door komma's) in en tel hoe vaak ze voorkomen in de tekst.</p>
+
+  <label for="woorden">Woord(en)</label>
+  <input id="woorden" type="text" placeholder="bijv. zon, maan, sterren">
+  <div class="note">Gebruik komma's om meerdere woorden op te geven.</div>
+
+  <label for="tekst">Tekst</label>
+  <textarea id="tekst" placeholder="Plak of typ hier je tekst..."></textarea>
+
+  <button id="tellen">Tel mijn woord</button>
+
+  <div class="results" id="resultaat" aria-live="polite">
+    <strong>Resultaten verschijnen hier.</strong>
+  </div>
+
+  <script>
+    const woordenInput = document.getElementById('woorden');
+    const tekstInput = document.getElementById('tekst');
+    const resultaat = document.getElementById('resultaat');
+    const tellerKnop = document.getElementById('tellen');
+
+    const normaliseer = (waarde) => waarde.trim().toLowerCase();
+
+    const telWoord = (tekst, woord) => {
+      if (!woord) return 0;
+      const patroon = new RegExp(`\\b${woord.replace(/[.*+?^${}()|[\\]\\]/g, '\\$&')}\\b`, 'gi');
+      const matches = tekst.match(patroon);
+      return matches ? matches.length : 0;
+    };
+
+    const toonResultaten = () => {
+      const tekst = tekstInput.value;
+      const woorden = woordenInput.value
+        .split(',')
+        .map(normaliseer)
+        .filter(Boolean);
+
+      if (!tekst.trim()) {
+        resultaat.innerHTML = '<strong>Vul eerst een tekst in.</strong>';
+        return;
+      }
+
+      if (woorden.length === 0) {
+        resultaat.innerHTML = '<strong>Vul minstens één woord in.</strong>';
+        return;
+      }
+
+      const resultaten = woorden.map((woord) => {
+        const aantal = telWoord(tekst, woord);
+        return `<li><strong>${woord}</strong>: ${aantal} keer</li>`;
+      });
+
+      resultaat.innerHTML = `
+        <strong>Gevonden:</strong>
+        <ul>
+          ${resultaten.join('')}
+        </ul>
+      `;
+    };
+
+    tellerKnop.addEventListener('click', toonResultaten);
+  </script>
+</body>
+</html>
